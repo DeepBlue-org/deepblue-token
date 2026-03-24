@@ -1,70 +1,82 @@
-# $DEEP — DeepBlue Token
+# DeepBlueBase Token ($DBB)
 
-ERC-20 token powering the [DeepBlue](https://deepbluebase.xyz) ecosystem on **Base**.
+ERC-20 token on Base. Powers DeepBlue — an autonomous AI agent company covering $200/month Claude Max cost with revenue.
 
-## Overview
+## Contracts
 
-$DEEP is the utility token for DeepBlue's AI-powered crypto intelligence platform. It token-gates premium API endpoints and enables community airdrops and buyback mechanics through built-in burn support.
-
-## Features
-
-- **ERC-20** standard token on Base L2
-- **Owner-controlled minting** — flexible supply management up to max cap
-- **Batch airdrop** — send to up to 200 addresses in a single transaction (variable or equal amounts)
-- **Batch mint** — mint directly to multiple addresses without pre-funding
-- **Burnable** — any holder can burn tokens; enables buyback-and-burn mechanics
-- **Token-gated access** — hold 1,000+ $DEEP to unlock DeepBlue premium API endpoints
+| Contract | Description |
+|----------|-------------|
+| `DeepBlueToken.sol` | $DBB token: 10M supply, 1% transfer fee → treasury, fee-exempt whitelist |
+| `DeepBlueFarm.sol` | Synthetix-style LP staking: stake Uniswap LP tokens, earn $DBB rewards |
 
 ## Tokenomics
 
-| Parameter | Value |
-|-----------|-------|
-| Name | DeepBlue |
-| Symbol | DEEP |
-| Decimals | 18 |
-| Max Supply | 1,000,000,000 (1B) |
-| Network | Base |
-| Contract | TBD (not deployed yet) |
+| Allocation | Amount | % |
+|------------|--------|---|
+| LP Farming Rewards | 3,000,000 | 30% |
+| Airdrops | 2,000,000 | 20% |
+| Treasury | 3,000,000 | 30% |
+| Initial Liquidity | 1,000,000 | 10% |
+| Reserve | 1,000,000 | 10% |
 
-## Gas Costs (Base L2)
+## Token Features
 
-| Operation | Estimated Cost |
-|-----------|---------------|
-| Deploy | ~$0.07 |
-| Batch airdrop (200 addresses) | ~$0.33 |
+- **1% transfer fee** on trades → treasury wallet (auto-funds operations)
+- **Fee-exempt whitelist**: treasury, LP pool, team (no double-dip)
+- **MAX_FEE_RATE**: 5% hard cap (safety)
+- **Batch airdrop**: distribute to thousands of wallets in one tx
+- **Mint / burn**: owner-controlled supply management
 
-## Tech Stack
+## Farm Features
 
-- **Solidity** ^0.8.20
-- **OpenZeppelin** v5 (ERC20, ERC20Burnable, Ownable)
-- **Foundry** for build, test, and deployment
+- **Synthetix StakingRewards pattern** (battle-tested, gas-efficient)
+- Stake Uniswap V3 DBB/ETH LP tokens
+- Earn $DBB proportional to your share of total staked LP
+- `stake(amount)` / `withdraw(amount)` / `claimReward()` / `exit()`
+- Owner funds reward periods: `notifyRewardAmount(reward, duration)`
+- Pause/unpause and emergency ERC-20 recovery
 
-## Project Structure
-
-```
-contracts/
-  DeepBlueToken.sol    — Token contract
-script/
-  Deploy.s.sol         — Foundry deployment script
-```
-
-## Deploy
+## Deployment (Base Mainnet)
 
 ```bash
-# Install dependencies
-forge install OpenZeppelin/openzeppelin-contracts
+# Compile with Foundry
+forge build
 
-# Deploy to Base
-forge script script/Deploy.s.sol:DeployToken \
-  --rpc-url https://mainnet.base.org \
-  --broadcast \
-  --verify
+# Deploy token
+forge script script/Deploy.s.sol --rpc-url https://mainnet.base.org --broadcast
+
+# Constructor args: (totalSupply, owner, treasury)
+# totalSupply: 10_000_000e18 (10M tokens)
+# owner: deployer EOA
+# treasury: 0x47ffc880cfF2e8F18fD9567faB5a1fBD217B5552
 ```
+
+## Architecture
+
+```
+$DBB Token (DeepBlueToken.sol)
+  → Users trade on Uniswap V3 (DBB/ETH pool on Base)
+  → 1% fee per trade → treasury wallet
+  → Treasury funds bot operations (Claude API, servers)
+
+LP Farm (DeepBlueFarm.sol)
+  → Users add DBB+ETH liquidity on Uniswap → get LP tokens
+  → Stake LP tokens in farm → earn $DBB rewards
+  → 3M DBB allocated for 12-month reward period
+```
+
+## Token-Gated API
+
+Hold 100+ $DBB → premium tier on [api.deepbluebase.xyz](https://api.deepbluebase.xyz):
+- **Free tier**: 100 req/day
+- **Premium tier**: 10,000 req/day + all endpoints
 
 ## Links
 
 - Website: [deepbluebase.xyz](https://deepbluebase.xyz)
-- Network: [Base](https://base.org)
+- API: [api.deepbluebase.xyz](https://api.deepbluebase.xyz)
+- Farm: [deepbluebase.xyz/farm](https://deepbluebase.xyz/farm)
+- Wallet: `0x47ffc880cfF2e8F18fD9567faB5a1fBD217B5552` (Base)
 
 ## License
 
